@@ -20,6 +20,7 @@
 package net.yanrc.demo.tcp;
 
 import java.net.InetSocketAddress;
+import java.nio.charset.Charset;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -29,6 +30,9 @@ import org.apache.mina.core.service.IoConnector;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
+import org.apache.mina.filter.codec.ProtocolCodecFilter;
+import org.apache.mina.filter.codec.textline.LineDelimiter;
+import org.apache.mina.filter.codec.textline.TextLineCodecFactory;
 import org.apache.mina.transport.socket.nio.NioSocketConnector;
 
 /**
@@ -63,6 +67,9 @@ public class TcpClient extends IoHandlerAdapter {
         connector = new NioSocketConnector();
 
         connector.setHandler(this);
+        connector.getFilterChain().addLast("codec",
+                new ProtocolCodecFilter(new TextLineCodecFactory(Charset.forName("UTF-8"), LineDelimiter.WINDOWS, LineDelimiter.WINDOWS)));
+
         ConnectFuture connFuture = connector.connect(new InetSocketAddress("localhost", TcpServer.PORT));
 
         connFuture.awaitUninterruptibly();
