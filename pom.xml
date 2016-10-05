@@ -8,7 +8,6 @@
 	<packaging>jar</packaging>
 	<version>1.0.0-SNAPSHOT</version>
 	<properties>
-		<java-version>1.6</java-version>
 		<version.log4j>1.2.17</version.log4j>
 		<version.slf4j.api>1.7.21</version.slf4j.api>
 		<version.slf4j.log4j12>1.7.21</version.slf4j.log4j12>

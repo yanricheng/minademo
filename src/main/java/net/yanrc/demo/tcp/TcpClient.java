@@ -57,7 +57,7 @@ public class TcpClient extends IoHandlerAdapter {
     private CountDownLatch counter;
     
     /**
-     * Create the UdpClient's instance
+     * 创建tcp客户端实例
      */
     public TcpClient() {
         connector = new NioSocketConnector();
