@@ -116,9 +116,11 @@ public class TcpServer extends IoHandlerAdapter {
             System.out.println("-------------> end " + (t1 - t0));
         }
 
-        if (nb % 10000 == 0) {
-            System.out.println("Received " + nb + " messages");
-        }
+//        if (nb % 10000 == 0) {
+//            System.out.println("Received " + nb + " messages");
+//        }
+        
+        System.out.println("Received " + nb + " messages");
 
         // If we want to test the write operation, uncomment this line
         session.write(message);
