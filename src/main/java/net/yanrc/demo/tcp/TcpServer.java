@@ -1,22 +1,4 @@
-package net.yanrc.demo.tcp;/*
- *  Licensed to the Apache Software Foundation (ASF) under one
- *  or more contributor license agreements.  See the NOTICE file
- *  distributed with this work for additional information
- *  regarding copyright ownership.  The ASF licenses this file
- *  to you under the Apache License, Version 2.0 (the
- *  "License"); you may not use this file except in compliance
- *  with the License.  You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
- *
- */
+package net.yanrc.demo.tcp;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -32,12 +14,7 @@ import org.apache.mina.filter.codec.textline.TextLineCodecFactory;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 
 /**
- * An TCP server used for performance tests.
- * <p/>
- * It does nothing fancy, except receiving the messages, and counting the number of
- * received messages.
- *
- * @author <a href="http://mina.apache.org">Apache MINA Project</a>
+ * 简单tcp server
  */
 public class TcpServer extends IoHandlerAdapter {
     /**
@@ -71,21 +48,11 @@ public class TcpServer extends IoHandlerAdapter {
         acceptor.getFilterChain().addLast("codec",
                 new ProtocolCodecFilter(new TextLineCodecFactory(Charset.forName("UTF-8"), LineDelimiter.WINDOWS, LineDelimiter.WINDOWS)));
 
-        // The logger, if needed. Commented atm
-        //DefaultIoFilterChainBuilder chain = acceptor.getFilterChain();
-        //chain.addLast("logger", new LoggingFilter());
-
         acceptor.bind(new InetSocketAddress(PORT));
 
         System.out.println("Server started...");
     }
 
-    /**
-     * The entry point.
-     *
-     * @param args The arguments
-     * @throws IOException If something went wrong
-     */
     public static void main(String[] args) throws IOException {
         new TcpServer();
     }
@@ -116,13 +83,12 @@ public class TcpServer extends IoHandlerAdapter {
             System.out.println("-------------> end " + (t1 - t0));
         }
 
-//        if (nb % 10000 == 0) {
-//            System.out.println("Received " + nb + " messages");
-//        }
-        
-        System.out.println("Received " + nb + " messages");
+        if (nb % 10000 == 0) {
+            System.out.println("Received " + nb + " messages:"+message.toString());
+        }
 
-        // If we want to test the write operation, uncomment this line
+
+        // 将收到的消息写回给客户端
         session.write(message);
     }
 
