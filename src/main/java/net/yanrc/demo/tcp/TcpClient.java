@@ -36,45 +36,61 @@ import org.apache.mina.filter.codec.textline.TextLineCodecFactory;
 import org.apache.mina.transport.socket.nio.NioSocketConnector;
 
 /**
- * An UDP client taht just send thousands of small messages to a UdpServer. 
- * 
- * This class is used for performance test purposes. It does nothing at all, but send a message
- * repetitly to a server.
- * 
- * @author <a href="http://mina.apache.org">Apache MINA Project</a>
+ * 一个简单tcp client 程序
  */
 public class TcpClient extends IoHandlerAdapter {
-    /** The connector */
+    /**
+     * The session
+     */
+    private static IoSession session;
+    /**
+     * The connector
+     */
     private IoConnector connector;
 
-    /** The session */
-    private static IoSession session;
-    
-    /** The buffer containing the message to send */
-    private IoBuffer buffer = IoBuffer.allocate(8);
-    
-    /** Timers **/
+    /**
+     * Timers
+     **/
     private long t0;
     private long t1;
 
-    /** the counter used for the sent messages */
+    /**
+     * the counter used for the sent messages
+     */
     private CountDownLatch counter;
-    
+
     /**
      * 创建tcp客户端实例
      */
     public TcpClient() {
-        connector = new NioSocketConnector();
 
+        //新建一个连接器
+        connector = new NioSocketConnector();
+        //设置时间监听程序
         connector.setHandler(this);
+        //设置编解码器
         connector.getFilterChain().addLast("codec",
                 new ProtocolCodecFilter(new TextLineCodecFactory(Charset.forName("UTF-8"), LineDelimiter.WINDOWS, LineDelimiter.WINDOWS)));
-
+        //连接服务器
         ConnectFuture connFuture = connector.connect(new InetSocketAddress("localhost", TcpServer.PORT));
-
+        //监听io事件
         connFuture.awaitUninterruptibly();
-
+        //获取连接会话
         session = connFuture.getSession();
+    }
+
+    public static void main(String[] args) throws Exception {
+        TcpClient client = new TcpClient();
+
+        client.t0 = System.currentTimeMillis();
+
+        client.counter = new CountDownLatch(TcpServer.MAX_RECEIVED);
+
+        session.write("hello_" + client.counter.getCount());
+
+        client.counter.await();//计数器等待
+
+        client.connector.dispose(true);
     }
 
     /**
@@ -90,24 +106,26 @@ public class TcpClient extends IoHandlerAdapter {
      */
     @Override
     public void messageReceived(IoSession session, Object message) throws Exception {
-        long received = ((IoBuffer)message).getLong();
-        
+        String value = message.toString();
+
+        if (counter.getCount() % 10000 == 0) {
+            System.out.println("<<receive:" + value);
+        }
+
+
+        long received = Long.parseLong(value.split("_")[1]);
+
         if (received != counter.getCount()) {
             System.out.println("Error !");
             session.closeNow();
         } else {
             if (counter.getCount() == 0L) {
                 t1 = System.currentTimeMillis();
-                
                 System.out.println("------------->  end " + (t1 - t0));
                 session.closeNow();
             } else {
                 counter.countDown();
-                
-                buffer.flip();
-                buffer.putLong(counter.getCount());
-                buffer.flip();
-                session.write(buffer);
+                session.write("hello_" + counter.getCount());
             }
         }
     }
@@ -118,7 +136,7 @@ public class TcpClient extends IoHandlerAdapter {
     @Override
     public void messageSent(IoSession session, Object message) throws Exception {
         if (counter.getCount() % 10000 == 0) {
-            System.out.println("Sent " + counter + " messages");
+            System.out.println("Sent " + message.toString() + " messages");
         }
     }
 
@@ -148,30 +166,5 @@ public class TcpClient extends IoHandlerAdapter {
      */
     @Override
     public void sessionOpened(IoSession session) throws Exception {
-    }
-
-    /**
-     * The main method : instanciates a client, and send N messages. We sleep 
-     * between each K messages sent, to avoid the server saturation.
-     * @param args The arguments
-     * @throws Exception If something went wrong
-     */
-    public static void main(String[] args) throws Exception {
-        TcpClient client = new TcpClient();
-
-        client.t0 = System.currentTimeMillis();
-        client.counter = new CountDownLatch(TcpServer.MAX_RECEIVED);
-        client.buffer.putLong(client.counter.getCount());
-        client.buffer.flip();
-        session.write(client.buffer);
-        int nbSeconds = 0;
-
-        while ((client.counter.getCount() > 0) && (nbSeconds < 120)) {
-            // Wait for one second
-            client.counter.await(1, TimeUnit.SECONDS);
-            nbSeconds++;
-        }
-
-        client.connector.dispose(true);
     }
 }
