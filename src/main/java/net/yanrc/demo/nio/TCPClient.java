@@ -32,6 +32,7 @@ public class TCPClient {
     while (totalBytesRcvd < argument.length) {
       if (writeBuf.hasRemaining()) {
         clntChan.write(writeBuf);
+        System.out.println("Send:"+new String(writeBuf.array()));
       }
       if ((bytesRcvd = clntChan.read(readBuf)) == -1) {
         throw new SocketException("Connection closed prematurely");
