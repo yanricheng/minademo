@@ -6,11 +6,11 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.ByteBuffer;
 import java.io.IOException;
 
-public class EchoSelectorProtocol implements TCPProtocol {
+public class EchoHandler implements TCPHandler {
 
   private int bufSize; // Size of I/O buffer
 
-  public EchoSelectorProtocol(int bufSize) {
+  public EchoHandler(int bufSize) {
     this.bufSize = bufSize;
   }
 

@@ -5,7 +5,7 @@ import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
-public class TCPEchoClientNonblocking {
+public class TCPClient {
 
   public static void main(String args[]) throws Exception {
 
