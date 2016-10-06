@@ -43,11 +43,15 @@ public class TcpServer extends IoHandlerAdapter {
      * @throws IOException If something went wrong
      */
     public TcpServer() throws IOException {
+        //accept 事件监听器
         NioSocketAcceptor acceptor = new NioSocketAcceptor();
+        //io时间处理器
         acceptor.setHandler(this);
+        //编解码器
         acceptor.getFilterChain().addLast("codec",
                 new ProtocolCodecFilter(new TextLineCodecFactory(Charset.forName("UTF-8"), LineDelimiter.WINDOWS, LineDelimiter.WINDOWS)));
 
+        //绑定端口，开始监听
         acceptor.bind(new InetSocketAddress(PORT));
 
         System.out.println("Server started...");
