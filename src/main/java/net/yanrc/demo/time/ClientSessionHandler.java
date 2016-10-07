@@ -25,7 +25,7 @@ public class ClientSessionHandler extends IoHandlerAdapter {
 
     @Override
     public void sessionOpened(IoSession session) {
-        session.write("begin");
+        session.write(count.getCount());
     }
 
     @Override
@@ -34,7 +34,13 @@ public class ClientSessionHandler extends IoHandlerAdapter {
         if(count.getCount()==0){
             session.write("quit");
         }else{
-            System.out.println("client receiv :"+count.getCount()+":"+message.toString());
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            session.write(count.getCount());
+
         }
     }
 
